@@ -1,0 +1,27 @@
+Basics of a Functional programming language.
+What is Scala?
+Is Scala functional or Object oriented.
+What is type binding?Is scala dynamic binding or static binding language
+Explain Scala data types heirarchy.
+Does scala supports primitive data types.
+How is it better than Java
+Can we use existing Java classes in scala code.
+What Scala features have you used?
+What all operators have you used in scala.
+Does scala supports ++ and -- operators.
+Recursion Vs Tail Recursion. Write factorial program using Tail Recursion.
+What is function literal in scala?
+What is higher order function?Give some example
+What are benefits of Immutability.
+What is Lazy evaluation and how is it beneficial.
+What are closures and procedure.
+What is currying and partially applied functions.
+Write a program to make Pyramid pattern (4 level * pyramid)using Scala for loop.
+What is TO and UNTIL.
+What is YIELD and when to use it.
+Object Oriented Programming in Scala
+Pattern Matching:-
+Case Class
+Monods
+Tuples
+Scala Collections
