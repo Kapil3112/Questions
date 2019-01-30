@@ -1,0 +1,46 @@
+Why hive when MR is already there?
+How to create a table?
+OLTP vs OLAP
+Where hive tables stores their data?
+Internal vs External tables
+Write word count program in hive.
+Create a hive table with all available complex data types available in hive and write a query to fetch data from this table.
+Why no reducers when running select * on hive table ?
+How do you create a table similar to a existing hive table?
+Insert vs insert override.
+What is metastore in hive?
+Does hive supports select * from dual?
+What is the hive warehouse directory?
+Can we change location of a hive table?
+OrderBy vs SortBy
+ClusterBy vs DistributeBy
+What is SkewedBy?
+What is Partitioning?
+Static vs dynamic partitioning.How to enable dyanamic partitioning?
+What is Bucketing?How it works?
+Create a table with partitioning and bucketing?
+Can we create partition inside partition?
+Can we create a buckets inside partitions?
+How to insert data in bucketed table.
+How do you decide the number of buckets.
+What is the criteria to decide partitioning and bucketing column.
+On Which column you have partitioned your tables in your current project and Why?
+What happens when you add,drop a partition of a existing partitioned table.
+What are ACID operations? Does hive supports ACID operations.
+What all file formats you have used?
+Row formats vs Columnar format.
+AVRO vs ORC vs Parquet
+Why ORC works faster with Hive? How is indexing in ORC.
+What engine are you using with Hive and how is it better than MR.
+What are SERDE in hive.
+What are different compressions techniques have you used? SNAPPY vs LZO vs ZLIB
+How to change a column type in hive table?
+What are UDF,UDAF in hive?
+What all UDF have you used.
+What is Explode function in hive? Explode VS Lateral view explode
+How to write a custom UDF.
+What are the various techniques have you used to optimize hive Query.
+Write a hive query to join 2 tables(inner,left outer,right outer,full outer)
+What is Map side join.
+What is Sortmerge join
+What is Vectorization,CBO and indexing in 
