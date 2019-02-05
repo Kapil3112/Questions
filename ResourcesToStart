@@ -1,0 +1,11 @@
+Download VM player for Windows from below link
+
+https://www.vmware.com/in/products/workstation-player/workstation-player-evaluation.html
+
+Create a Virtual machine using cloudera quick-start vm image
+
+To download cloudera distribution use below link
+
+https://www.cloudera.com/downloads/quickstart_vms/5-13.html
+
+Under platform ->> select vmware and click on GET IT NOW
