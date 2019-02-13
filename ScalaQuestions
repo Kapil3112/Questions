@@ -19,8 +19,52 @@ What is currying and partially applied functions.
 Write a program to make Pyramid pattern (4 level * pyramid)using Scala for loop.
 What is TO and UNTIL.
 What is YIELD and when to use it.
+
 Object Oriented Programming in Scala
-Pattern Matching:-
+Does Scala supports multiple inheritance.
+What is diamond problem in scala and how Scala resolves it.
+What is object in Scala.How is it different than Companion object.
+What are traits,compare with abstract class.
+Can we create instance of a trait.
+What type of members a trait can contain.
+What is mixin and super trait.
+Tell me something about sealed trait.
+
+Pattern Matching:- 
+Try understanding below code, it covers most of the questions asked on pattern matching. It matches multiple type of patterns
+
+def echoWhatYouGaveMe(x: Any): String = x match {
+// constant patterns
+case 0 => "zero"
+case true => "true"
+case "hello" => "you said 'hello'"
+case Nil => "an empty List"
+// sequence patterns
+case List(0, _, _) => "a three-element list with 0 as the first element"
+case List(1, _*) => "a list beginning with 1, having any number of elements"
+case Vector(1, _*) => "a vector starting with 1, having any number of elements"
+// tuples
+case (a, b) => s"got $a and $b"
+case (a, b, c) => s"got $a, $b, and $c"
+// constructor patterns
+case Person(first, "Alexander") => s"found an Alexander, first name = $first"
+case Dog("Suka") => "found a dog named Suka"
+// typed patterns
+case s: String => s"you gave me this string: $s"
+case i: Int => s"thanks for the int: $i"
+case f: Float => s"thanks for the float: $f"
+case a: Array[Int] => s"an array of int: ${a.mkString(",")}"
+case as: Array[String] => s"an array of strings: ${as.mkString(",")}"
+case d: Dog => s"dog: ${d.name}"
+case list: List[_] => s"thanks for the List: $list"
+case m: Map[_, _] => m.toString
+// the default wildcard pattern
+case _ => "Unknown"
+}
+
+How to match multiple values in one case.
+
+
 Case Class
 Monods
 Tuples
