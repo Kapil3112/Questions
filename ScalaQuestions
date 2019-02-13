@@ -63,9 +63,27 @@ case _ => "Unknown"
 }
 
 How to match multiple values in one case.
+Solution:
+Place the match conditions that invoke the same business logic on one line, separated by the | (pipe) character:
+val i = 5
+i match {
+case 1 | 3 | 5 | 7 | 9 => println("odd")
+case 2 | 4 | 6 | 8 | 10 => println("even")
+}
 
+Constructors:
+Write a class with all varieties of constructor possible in scala class.
+How to define a primary constructor.
 
-Case Class
+Case Class:
+What is case class in scala and why we need it.
+Can we have mutable members in case class.
+Benefits of case class.
+Can we mutate case class object?
+How case class objects are compared.
+Can a case class extends another case class.
+
+Exception handling
 Monods
 Tuples
 Scala Collections
