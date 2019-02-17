@@ -83,7 +83,13 @@ Can we mutate case class object?
 How case class objects are compared.
 Can a case class extends another case class.
 
-Exception handling
-Monods
-Tuples
+Exception handling and Monods
+For understanding Monads read blog at below link
+https://xebia.com/blog/try-option-or-either/
+
 Scala Collections
+Comaprision between commonly used collections in Scala.
+
+What is Tuple?
+How can i return multiples values in from a function?
+How many values can a tuple accommodate.
