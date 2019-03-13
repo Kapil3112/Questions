@@ -1,0 +1,146 @@
+How to select the first row of each group?
+
+I have a DataFrame generated as follow:
+
+df.groupBy($"Hour", $"Category")
+  .agg(sum($"value") as "TotalValue")
+  .sort($"Hour".asc, $"TotalValue".desc))
+The results look like:
+
++----+--------+----------+
+|Hour|Category|TotalValue|
++----+--------+----------+
+|   0|   cat26|      30.9|
+|   0|   cat13|      22.1|
+|   0|   cat95|      19.6|
+|   0|  cat105|       1.3|
+|   1|   cat67|      28.5|
+|   1|    cat4|      26.8|
+|   1|   cat13|      12.6|
+|   1|   cat23|       5.3|
+|   2|   cat56|      39.6|
+|   2|   cat40|      29.7|
+|   2|  cat187|      27.9|
+|   2|   cat68|       9.8|
+|   3|    cat8|      35.6|
+| ...|    ....|      ....|
++----+--------+----------+
+As you can see, the DataFrame is ordered by Hour in an increasing order, then by TotalValue in a descending order.
+
+I would like to select the top row of each group, i.e.
+
+from the group of Hour==0 select (0,cat26,30.9)
+from the group of Hour==1 select (1,cat67,28.5)
+from the group of Hour==2 select (2,cat56,39.6)
+and so on
+So the desired output would be:
+
++----+--------+----------+
+|Hour|Category|TotalValue|
++----+--------+----------+
+|   0|   cat26|      30.9|
+|   1|   cat67|      28.5|
+|   2|   cat56|      39.6|
+|   3|    cat8|      35.6|
+| ...|     ...|       ...|
++----+--------+----------+
+
+Solution:
+
+Window functions:
+
+import org.apache.spark.sql.functions.{row_number, max, broadcast}
+import org.apache.spark.sql.expressions.Window
+
+val df = sc.parallelize(Seq(
+  (0,"cat26",30.9), (0,"cat13",22.1), (0,"cat95",19.6), (0,"cat105",1.3),
+  (1,"cat67",28.5), (1,"cat4",26.8), (1,"cat13",12.6), (1,"cat23",5.3),
+  (2,"cat56",39.6), (2,"cat40",29.7), (2,"cat187",27.9), (2,"cat68",9.8),
+  (3,"cat8",35.6))).toDF("Hour", "Category", "TotalValue")
+
+val w = Window.partitionBy($"hour").orderBy($"TotalValue".desc)
+
+val dfTop = df.withColumn("rn", row_number.over(w)).where($"rn" === 1).drop("rn")
+
+dfTop.show
+// +----+--------+----------+
+// |Hour|Category|TotalValue|
+// +----+--------+----------+
+// |   0|   cat26|      30.9|
+// |   1|   cat67|      28.5|
+// |   2|   cat56|      39.6|
+// |   3|    cat8|      35.6|
+// +----+--------+----------+
+This method will be inefficient in case of significant data skew.
+
+Plain SQL aggregation followed by join:
+
+Alternatively you can join with aggregated data frame:
+
+val dfMax = df.groupBy($"hour".as("max_hour")).agg(max($"TotalValue").as("max_value"))
+
+val dfTopByJoin = df.join(broadcast(dfMax),
+    ($"hour" === $"max_hour") && ($"TotalValue" === $"max_value"))
+  .drop("max_hour")
+  .drop("max_value")
+
+dfTopByJoin.show
+
+// +----+--------+----------+
+// |Hour|Category|TotalValue|
+// +----+--------+----------+
+// |   0|   cat26|      30.9|
+// |   1|   cat67|      28.5|
+// |   2|   cat56|      39.6|
+// |   3|    cat8|      35.6|
+// +----+--------+----------+
+It will keep duplicate values (if there is more than one category per hour with the same total value). You can remove these as follows:
+
+dfTopByJoin
+  .groupBy($"hour")
+  .agg(
+    first("category").alias("category"),
+    first("TotalValue").alias("TotalValue"))
+Using ordering over structs:
+
+Neat, although not very well tested, trick which doesn't require joins or window functions:
+
+val dfTop = df.select($"Hour", struct($"TotalValue", $"Category").alias("vs"))
+  .groupBy($"hour")
+  .agg(max("vs").alias("vs"))
+  .select($"Hour", $"vs.Category", $"vs.TotalValue")
+
+dfTop.show
+// +----+--------+----------+
+// |Hour|Category|TotalValue|
+// +----+--------+----------+
+// |   0|   cat26|      30.9|
+// |   1|   cat67|      28.5|
+// |   2|   cat56|      39.6|
+// |   3|    cat8|      35.6|
+// +----+--------+----------+
+With DataSet API (Spark 1.6+, 2.0+):
+
+Spark 1.6:
+
+case class Record(Hour: Integer, Category: String, TotalValue: Double)
+
+df.as[Record]
+  .groupBy($"hour")
+  .reduce((x, y) => if (x.TotalValue > y.TotalValue) x else y)
+  .show
+
+// +---+--------------+
+// | _1|            _2|
+// +---+--------------+
+// |[0]|[0,cat26,30.9]|
+// |[1]|[1,cat67,28.5]|
+// |[2]|[2,cat56,39.6]|
+// |[3]| [3,cat8,35.6]|
+// +---+--------------+
+Spark 2.0 or later:
+
+df.as[Record]
+  .groupByKey(_.Hour)
+  .reduceGroups((x, y) => if (x.TotalValue > y.TotalValue) x else y)
+The last two methods can leverage map side combine and don't require full shuffle so most of the time should exhibit a better performance compared to window functions and joins. These cane be also used with Structured Streaming in completed output mode.
