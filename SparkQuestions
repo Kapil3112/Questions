@@ -3,3 +3,12 @@ RDDs
 BroadCast Variables
 Accumulators
 Spark Job Tuning
+
+
+difference between hadoop 1 and 2
+How Yarn is better
+RDD vs Dataframe? How RDD have serialization overhead? 
+Difference b/w groupByKey,aggregateByKey and reduceByKey
+Major difference between Spark 2.0 and 1.6
+How many nodes in cluster and how much RAM per nodes
+How Kyro is better than Java
