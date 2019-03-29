@@ -144,3 +144,39 @@ df.as[Record]
   .groupByKey(_.Hour)
   .reduceGroups((x, y) => if (x.TotalValue > y.TotalValue) x else y)
 The last two methods can leverage map side combine and don't require full shuffle so most of the time should exhibit a better performance compared to window functions and joins. These cane be also used with Structured Streaming in completed output mode.
+
+Breast Cancer Analysis
+Use this URL for data and its info: https://acadgild.com/blog/breast-cancer-data-analysis-using-spark
+Common code 
+val file=sc.textFile("/opt/MyInstallation/kapil/sample/clinical_data.csv")
+val header=file.first
+val data=file.filter(head=>head !=header).map(line=>line.split(","))
+
+Questions:
+#1 – What is the average age at which initial pathologic diagnosis to be done?
+#2 – Find the average age of people of each AJCC Stage?
+#3 – Find out the people with vital status and their count?
+val ans1=data.map(x=> x(2).toInt).reduce(_+_)/data.count
+val ans2=data.map(v=>(v(11),v(2).toInt)).mapValues((_,1)).reduceByKey((x,y)=> (x._1+y._1,x._2+y._2)).mapValues(x=> x._1/x._2).collect
+val ans3=data.map(x=> (x(14),1)).reduceByKey(_+_).collect
+
+Titanic Data Analysis
+Use this URL for downloading data and its info:https://acadgild.com/blog/spark-use-case-titanic-data-analysis
+Common code
+val file=sc.textFile("/opt/MyInstallation/kapil/sample/TitanicData.txt")
+val data=file.map(x=> x.split(","))
+
+#1 - Find the average age of males and females who died in the Titanic tragedy.
+val ans1=data.filter{x=>if((x(1)=="1")&&(x(5).matches(("\\d+"))))true else false}.map(v=>(v(4).toString,v(5).toInt)).mapValues((_,1)).reduceByKey((x,y)=>(x._1+y._1,x._2+y._2)).mapValues(b=> (1.0 * b._1)/b._2)
+#2 - Find the number of people who died or survived in each class, along with their gender and age.
+val ans2=data.filter{x=> {if (x.length >=7) true else false}}.map(v=> (v(1)+" "+v(4)+" "+v(5)+" "+v(2),1))reduceByKey(_+_)
+
+Travel Data Analysis
+Use this URL for data and its info:https://acadgild.com/blog/spark-use-case-travel-data-analysis
+Common code
+val Tfile=sc.textFile("/opt/MyInstallation/kapil/sample/TravelData.txt")
+#1 - Top 20 destinations
+val reslt1=Tfile.map(x=>x.split("\t")).map(y=> (y(2),1)).reduceByKey(_+_).map(v=>v.swap).sortByKey(false).take(20)
+#2 - Top 20 locations from where people travel the most
+val reslt2=Tfile.map(x=>x.split("\t")).map(y=> (y(1),1)).reduceByKey(_+_).map(v=>v.swap).sortByKey(false).take(20)
+
