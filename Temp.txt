@@ -1,3 +1,114 @@
+-- my_model.sql
+
+-- Import necessary dbt packages
+{% import "array" as array %}
+{% import "dbt_utils" as dbt_utils %}
+
+-- Create 'dups' table using subset of duplicated rows
+WITH dups AS (
+  SELECT *
+  FROM {{ ref('df_all') }}
+  WHERE (PTY_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT) IN (
+    SELECT PTY_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT
+    FROM {{ ref('df_all') }}
+    GROUP BY PTY_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT
+    HAVING COUNT(*) > 1
+  )
+)
+
+-- Create 'sorted_dups' table by sorting 'dups' by specified columns
+, sorted_dups AS (
+  SELECT *
+  FROM dups
+  ORDER BY PTY_ID, EVENT_START_DT, EVENT_ID
+)
+
+-- Calculate 'type_count' using dbt_utils pivot table
+, type_count AS (
+  SELECT *
+  FROM {{ dbt_utils.pivot(
+    source_name='sorted_dups',
+    value_name='TYPE',
+    index_columns=['PTY_ID', 'AGRMNT_ID', 'EVENT_START_DT', 'RELATD_AGRMNT_NO', 'ABS_AMOUNT', 'EVENT_ACTVTY_NR_CHECK'],
+    aggregation='nunique'
+  ) }}
+)
+
+-- Rename 'TYPE' column to 'TYPE_COUNT' in 'type_count' table
+, type_count_renamed AS (
+  SELECT PTY_ID, AGRMNT_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT, EVENT_ACTVTY_NR_CHECK, "TYPE" AS "TYPE_COUNT"
+  FROM type_count
+)
+
+-- Join 'sorted_dups' with 'type_count_renamed' table
+, sorted_dups_with_type_count AS (
+  SELECT *
+  FROM sorted_dups
+  LEFT JOIN type_count_renamed USING (PTY_ID, AGRMNT_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT, EVENT_ACTVTY_NR_CHECK)
+)
+
+-- Filter rows where 'TYPE_COUNT' is 2 in 'sorted_dups_with_type_count' table
+, sorted_dups_filtered AS (
+  SELECT *
+  FROM sorted_dups_with_type_count
+  WHERE "TYPE_COUNT" = 2
+)
+
+-- Calculate 'debit_credit_count' using dbt_utils pivot table
+, debit_credit_count AS (
+  SELECT *
+  FROM {{ dbt_utils.pivot(
+    source_name='sorted_dups_filtered',
+    value_name='EVENT_ID',
+    index_columns=['PTY_ID', 'AGRMNT_ID', 'RELATD_AGRMNT_NO', 'EVENT_START_DT', 'ABS_AMOUNT', 'EVENT_ACTVTY_NR_CHECK'],
+    columns=['TYPE'],
+    aggregation='count'
+  ) }}
+)
+
+-- Calculate 'MATCH_COUNT' and select necessary columns in 'debit_credit_count' table
+, debit_credit_count_with_match_count AS (
+  SELECT *, {{ array.min(array([col('ELECT', 'MATCH_COUNT') for col in debit_credit_count.column_names()])) }} AS "MATCH_COUNT"
+  FROM debit_credit_count
+)
+
+-- Reset index in 'debit_credit_count_with_match_count' table
+, debit_credit_count_reset_index AS (
+  SELECT *
+  FROM debit_credit_count_with_match_count
+  ORDER BY "MATCH_COUNT"
+  LIMIT 1 -- Assuming you only want the row with the minimum "MATCH_COUNT"
+)
+
+-- Join
+
+ 'sorted_dups_filtered' with 'debit_credit_count_reset_index' table
+, sorted_dups_with_match_count AS (
+  SELECT *
+   FROM sorted_dups_filtered
+  LEFT JOIN debit_credit_count_reset_index USING (PTY_ID, AGRMNT_ID, RELATD_AGRMNT_NO, EVENT_START_DT, ABS_AMOUNT, EVENT_ACTVTY_NR_CHECK)
+)
+
+-- Calculate 'CUMUL_COUNT' using GROUP BY and cumulative count
+, sorted_dups_with_cumul_count AS (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY PTY_ID, AGRMNT_ID, EVENT_START_DT, RELATD_AGRMNT_NO, ABS_AMOUNT, EVENT_ACTVTY_NR_CHECK, "TYPE" ORDER BY EVENT_ID) - 1 AS "CUMUL_COUNT"
+  FROM sorted_dups_with_match_count
+)
+
+-- Final filtered 'sorted_dups' table with 'CUMUL_COUNT' condition
+SELECT *
+FROM sorted_dups_with_cumul_count
+WHERE "CUMUL_COUNT" < "MATCH_COUNT"
+```
+
+In the above dbt SQL code, the different stages of the transformation are broken down into multiple CTEs (Common Table Expressions) to perform the necessary calculations and joins. Each CTE builds on the previous one to achieve the desired result.
+
+Make sure to replace `'df_all'` with the appropriate reference to the source table in your dbt project. Adjust the column names as per your table schema.
+
+Note: This code assumes that you have the necessary dbt packages, such as `array` and `dbt_utils`, installed and configured in your dbt project.
+
+
+
 @WITH base_monthly_features AS (
 SELECT
 PTY_ID, AGRMNT_ID, txn_month, txn_year,
