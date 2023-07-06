@@ -1,3 +1,8 @@
+
+{% macro array_min(arr) %}
+    SELECT MIN(value) AS min_value
+    FROM UNNEST({{ arr }}) AS value
+{% endmacro %}
 SELECT
   "PTY ID",
   "AGRMNT ID",
