@@ -1,3 +1,33 @@
+SELECT
+  "PTY ID",
+  "AGRMNT ID",
+  "EVENT START DIV",
+  "REIATD AGRMNT NO",
+  "ABS AMOUNT",
+  "EVENT ACTVTY NR CHECK",
+  COUNT("EVENT ID") AS debit_credit_count,
+  CASE
+    WHEN COUNT("EVENT ID") <= (
+      SELECT MIN(cnt) FROM (
+        SELECT COUNT("EVENT ID") AS cnt
+        FROM sorted_dups
+        GROUP BY "PTY ID", "AGRMNT ID", "EVENT START DIV", "REIATD AGRMNT NO", "ABS AMOUNT", "EVENT ACTVTY NR CHECK"
+      ) subquery
+    ) THEN COUNT("EVENT ID")
+    ELSE (
+      SELECT MIN(cnt) FROM (
+        SELECT COUNT("EVENT ID") AS cnt
+        FROM sorted_dups
+        GROUP BY "PTY ID", "AGRMNT ID", "EVENT START DIV", "REIATD AGRMNT NO", "ABS AMOUNT", "EVENT ACTVTY NR CHECK"
+      ) subquery
+    )
+  END AS match_count
+FROM
+  sorted_dups
+GROUP BY
+  "PTY ID", "AGRMNT ID", "EVENT START DIV", "REIATD AGRMNT NO", "ABS AMOUNT", "EVENT ACTVTY NR CHECK"
+
+
 -- my_model.sql
 
 -- Import necessary dbt packages
