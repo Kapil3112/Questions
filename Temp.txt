@@ -1,4 +1,6 @@
-
+{% macro array_agg(column_name) %}
+    SELECT ARRAY_AGG({{ column_name }}) AS aggregated_array
+{% endmacro %}
 {% macro array_min(arr) %}
     SELECT MIN(value) AS min_value
     FROM UNNEST({{ arr }}) AS value
