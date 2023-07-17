@@ -1,3 +1,71 @@
+tcs code#tcs code2ftes ds#tas2 ds
+1#1#Asset Finance#Asset Finance
+1#2#Asset Finance#Plant Hire
+2‡1#Fleet#Vehicle Finance / Lease
+2=2+Fleet#car Hire
+2#3#Fleet#DVLA
+2‡4#Fleet#Servicing
+3#1#Invoice Finance#Invoice
+Finance
+3#2#Invoice Finance#Trade & Supply Finance
+4#null#Foreign Exchange#null
+5#null#Merchant Services#null
+6#1#Credit Cards#Credit cards
+6+2+Credit Cards#Behavioural Credit Cards
+7#1#Lending#Behavioural Lending
+7#2#Lending#Peer to Peer / Crowdfunding
+7#null#Lending#null
+8#null#Pensions#null
+9#null#Mortgages#null
+10#null#Insurance#null
+12#null#Deposits#null
+12*null tothes. Bankingtnui.
+13#null#Merchant Services Payments (Debits) #null
+14#null‡LBG+null
+15#null#Gas & Electricity#null
+16#null#Fuel#null
+17#null#Salaries / Wages / Payroll#null
+18#2#HMRC#Corporation Tax
+18#3#HMRC#VAT
+18‡4#HMRC#Customs & Excise
+18#5#HMRC#DCLG
+18#6#HMRC#Other
+19#1#Council Payments#Council Tax
+19#2+Council Payments#Other Council Payments
+20 null#Importing#null
+217null#Exporting#null
+22#nu11#IT#nu11
+23#null#Consultancy#null
+24#null#Mergers & Acquisitions#null
+25#null#PR & Advertisinq#null
+26#null#Intellectual Property#null
+27#null#Equity Investment#null
+28#null#Research
+§ Development#null
+29#null#Recruitment#null
+30#null#Surveying / Conveyancing #null
+31#null#Private Planning#null
+32#null#Land Registry#null
+33#null#Flights#null
+34#null#Hotels#null
+35#null#Estate Agents#null
+36#null#Telecoms / Media
+Broadband#null
+37#null#Water Services#null
+38+null#Waste & Recycling#null
+39#1#Accountancy#Online
+39+2#Accountancy#Traditional
+40#1#Couriers#Post & Telecommunication
+40#2‡Couriers#Industrial Transport
+41#null#Healthcare#null
+42#null#Building Supplies‡null
+43#null#Agriculture Supplies#null
+44#null#Debt Collection#null
+45#null#Motor Supplies#null
+46#null#Retail#null
+
+
+
 {% macro array_agg(column_name) %}
     SELECT ARRAY_AGG({{ column_name }}) AS aggregated_array
 {% endmacro %}
