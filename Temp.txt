@@ -365,3 +365,95 @@ SUM(CASE WHEN CRT_DBT_IND = 'Debit'
 AND OW_FINAL_CATEGORY_1 = 'Intra-group Transfer' THEN EVENT_AM ELSE NULL END)
 AS INTRA_GROUP_OUT
 FROM { source (' sre_schema', 'tesowcurated") ]} GROUP BY PTY_ID, txn_year, txn_month
+
+
+# steps.py
+
+from behave import given
+import subprocess
+
+@given('I have loaded test data into my BigQuery table using dbt seed')
+def load_test_data_using_dbt_seed(context):
+    # Define parameters for dbt seed command
+    seed_command = ['dbt', 'seed']
+    parameters = ['--option', 'value']  # Add any parameters you need here
+
+    # Combine seed command and parameters
+    seed_command.extend(parameters)
+
+    # Run dbt seed command with parameters
+    try:
+        subprocess.run(seed_command)
+        print("Test data loaded into BigQuery table using dbt seed.")
+    except Exception as e:
+        print(f"Error loading test data using dbt seed: {e}")
+        raise e
+
+# my_feature.feature
+
+Feature: Testing my_dbt_model
+  As a data engineer
+  I want to verify the behavior of my_dbt_model
+
+  Scenario: Verify that my_dbt_model produces expected results
+    Given I have loaded test data into my database
+    When I run the my_dbt_model transformation
+    Then the output table should contain the expected data
+
+# steps.py
+
+from behave import given, when, then
+import subprocess
+
+@given('I have loaded test data into my database')
+def load_test_data(context):
+    # Implement logic to load test data into the database
+    pass
+
+@when('I run the my_dbt_model transformation')
+def run_dbt_model(context):
+    # Run the dbt model using subprocess or dbt Python API
+    subprocess.run(['dbt', 'run'])
+
+@then('the output table should contain the expected data')
+def verify_output_table(context):
+    # Implement logic to verify the output table contains expected data
+    pass
+
+# steps.py
+
+from behave import given
+import subprocess
+
+@given('I have loaded test data into my BigQuery table using dbt seed')
+def load_test_data_using_dbt_seed(context):
+    # Run dbt seed command to load test data into BigQuery table
+    try:
+        subprocess.run(['dbt', 'seed'])
+        print("Test data loaded into BigQuery table using dbt seed.")
+    except Exception as e:
+        print(f"Error loading test data using dbt seed: {e}")
+        raise e
+
+# steps.py
+
+from behave import given
+import subprocess
+
+@given('I have loaded test data into my BigQuery table using dbt seed')
+def load_test_data_using_dbt_seed(context):
+    # Define parameters for dbt seed command
+    seed_command = ['dbt', 'seed']
+    parameters = ['--option', 'value']  # Add any parameters you need here
+
+    # Combine seed command and parameters
+    seed_command.extend(parameters)
+
+    # Run dbt seed command with parameters
+    try:
+        subprocess.run(seed_command)
+        print("Test data loaded into BigQuery table using dbt seed.")
+    except Exception as e:
+        print(f"Error loading test data using dbt seed: {e}")
+        raise e
+
